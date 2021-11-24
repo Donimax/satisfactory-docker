@@ -1,4 +1,4 @@
-FROM steamcmd:0.1
+FROM donimax/steamcmd:latest
 
 RUN mkdir -p /config \
     && chown steam:steam /config
