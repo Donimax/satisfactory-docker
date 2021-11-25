@@ -31,7 +31,7 @@ services:
         restart: unless-stopped
 ```
 
-For windows vlumes use for example:
+For windows volumes use for example:
 
 ```yaml
         volumes:
