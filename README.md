@@ -1,5 +1,8 @@
 # satisfactory-docker
 
+[![Docker Pulls](https://img.shields.io/docker/pulls/donimax/satisfactory-docker)](https://hub.docker.com/r/donimax/satisfactory-docker)
+[![Docker Image Size (tag)](https://img.shields.io/docker/image-size/donimax/satisfactory-docker/latest)](https://hub.docker.com/r/donimax/satisfactory-docker)
+
 This is a Dockerized version of the [Satisfactory](https://store.steampowered.com/app/526870/Satisfactory/) dedicated server.
 
 ## Docker-compose file
