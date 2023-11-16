@@ -46,8 +46,8 @@ ln -sf /config/ServerSettings.15777 "${GAMESAVESDIR}/ServerSettings.15777"
 
 cp /home/steam/{Engine.ini,Game.ini,Scalability.ini} "${GAMECONFIGDIR}/Config/LinuxServer"
 
-if [ ! -f "/config/gamefiles/Engine/Binaries/Linux/UE4Server-Linux-Shipping" ]; then
-    printf "Game binary is missing.\\n"
+if [[ ! -f "/config/gamefiles/Engine/Binaries/Linux/UE4Server-Linux-Shipping" || ! -f "/config/gamefiles/Engine/Binaries/Linux/UnrealServer-Linux-Shipping" ]]; then
+    printf "Game binary is missing.\\\n"
     exit 1
 fi
 
