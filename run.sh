@@ -46,11 +46,20 @@ ln -sf /config/ServerSettings.15777 "${GAMESAVESDIR}/ServerSettings.15777"
 
 cp /home/steam/{Engine.ini,Game.ini,Scalability.ini} "${GAMECONFIGDIR}/Config/LinuxServer"
 
-if [ ! -f "/config/gamefiles/Engine/Binaries/Linux/UE4Server-Linux-Shipping" ]; then
-    printf "Game binary is missing.\\n"
-    exit 1
+#Check Game binary file
+if [ -f "/config/gamefiles/Engine/Binaries/Linux/UnrealServer-Linux-Shipping" ]; then
+    GAMEBINARY=UnrealServer-Linux-Shipping
+    printf "Using ${GAMEBINARY} binary\\n"
+else
+    if [ -f "/config/gamefiles/Engine/Binaries/Linux/UE4Server-Linux-Shipping" ]; then
+        GAMEBINARY=UE4Server-Linux-Shipping
+        printf "Using ${GAMEBINARY} binary\\n"
+    else
+        printf "Game binary is missing.\\n"
+        exit 1
+    fi
 fi
 
 cd /config/gamefiles || exit 1
 
-Engine/Binaries/Linux/UE4Server-Linux-Shipping FactoryGame -log -NoSteamClient -unattended ?listen -Port=$SERVERGAMEPORT -BeaconPort=$SERVERBEACONPORT -ServerQueryPort=$SERVERQUERYPORT -multihome=$SERVERIP
+Engine/Binaries/Linux/$GAMEBINARY FactoryGame -log -NoSteamClient -unattended ?listen -Port=$SERVERGAMEPORT -BeaconPort=$SERVERBEACONPORT -ServerQueryPort=$SERVERQUERYPORT -multihome=$SERVERIP
