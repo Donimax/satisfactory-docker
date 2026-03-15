@@ -55,8 +55,13 @@ else
         GAMEBINARY=UE4Server-Linux-Shipping
         printf "Using ${GAMEBINARY} binary\\n"
     else
-        printf "Game binary is missing.\\n"
-        exit 1
+        if [ -f "/config/gamefiles/Engine/Binaries/Linux/FactoryServer-Linux-Shipping" ]; then
+            GAMEBINARY=FactoryServer-Linux-Shipping
+            printf "Using ${GAMEBINARY} binary\\n"
+        else
+            printf "Game binary is missing.\\n"
+            exit 1
+        fi
     fi
 fi
 
