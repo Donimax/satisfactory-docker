@@ -8,7 +8,6 @@ This is a Dockerized version of the [Satisfactory](https://store.steampowered.co
 ## Docker-compose file
 
 ```yaml
-version: '3'
 services:
     satisfactory-server-01:
         container_name: 'satisfactory-server-01'
@@ -19,7 +18,7 @@ services:
             - '15000:15000/udp'
             - '15777:15777/udp'
         volumes:
-            - 'opt/docker/satisfactory/config:/config'
+            - './config:/config'
         environment:
             - MAXPLAYERS=8
             - PGID=1000
