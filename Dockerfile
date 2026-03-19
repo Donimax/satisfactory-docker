@@ -1,4 +1,4 @@
-FROM donimax/steamcmd:latest
+FROM donimax/steamcmd:v1.1.0
 
 USER root
 
