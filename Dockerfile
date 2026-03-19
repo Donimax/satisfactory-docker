@@ -1,5 +1,7 @@
 FROM donimax/steamcmd:latest
 
+USER root
+
 RUN mkdir -p /config \
     && chown steam:steam /config
 
