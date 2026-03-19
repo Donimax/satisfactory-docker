@@ -10,21 +10,15 @@ if ! [[ "$MAXPLAYERS" =~ $NUMCHECK ]] ; then
 fi
 
 printf "Setting max players to ${MAXPLAYERS}\\n"
-sed "s/MaxPlayers\=16/MaxPlayers=$MAXPLAYERS/" -i "/home/steam/Game.ini"
-
-if ! [[ "$MAXPLAYERS" =~ $NUMCHECK ]] ; then
-    printf "Invalid max players given: ${MAXPLAYERS}\\n"
-    MAXPLAYERS="16"
-fi
+sed -i "s/MaxPlayers=.*/MaxPlayers=${MAXPLAYERS}/" "/home/steam/Game.ini"
 
 if [[ "$SKIPUPDATE" == "false" ]]; then
     if [[ "$STEAMBETA" == "true" ]]; then
         printf "Experimental flag is set. Experimental will be downloaded instead of Early Access.\\n"
-        STEAMBETAFLAG=" -beta experimental"
+        STEAMBETAFLAG="-beta experimental"
     fi
 
-    space=$(stat -f --format="%a*%S" .)
-    space=$((space/1024/1024/1024))
+    space=$(df -BG . | awk 'NR==2 {gsub(/G/,"",$4); print $4}')
     printf "Checking available space...${space}GB detected\\n"
 
     if [[ "$space" -lt 5 ]]; then
@@ -33,32 +27,33 @@ if [[ "$SKIPUPDATE" == "false" ]]; then
 
     printf "Downloading the latest version of the game...\\n"
 
-    /home/steam/steamcmd/steamcmd.sh +force_install_dir /config/gamefiles +login anonymous +app_update $STEAMAPPID$STEAMBETAFLAG +quit
+    /home/steam/steamcmd/steamcmd.sh +force_install_dir /config/gamefiles +login anonymous +app_update $STEAMAPPID ${STEAMBETAFLAG:+$STEAMBETAFLAG} +quit
 else
     printf "Skipping update as flag is set\\n"
 fi
 
 cp -a /config/saves/. /config/backups/
-cp -a "${GAMESAVESDIR}/server/." /config/backups # useless in first run, but useful in additional runs
+cp -a "${GAMESAVESDIR}/server/." /config/backups/ # useless in first run, but useful in additional runs
 rm -rf "${GAMESAVESDIR}/server"
 ln -sf /config/saves "${GAMESAVESDIR}/server"
 ln -sf /config/ServerSettings.15777 "${GAMESAVESDIR}/ServerSettings.15777"
 
 cp /home/steam/{Engine.ini,Game.ini,Scalability.ini} "${GAMECONFIGDIR}/Config/LinuxServer"
 
-#Check Game binary file
-if [ -f "/config/gamefiles/Engine/Binaries/Linux/UnrealServer-Linux-Shipping" ]; then
-    GAMEBINARY=UnrealServer-Linux-Shipping
-    printf "Using ${GAMEBINARY} binary\\n"
+# Check game binary file
+BINARY_DIR="/config/gamefiles/Engine/Binaries/Linux"
+if [ -f "${BINARY_DIR}/UnrealServer-Linux-Shipping" ]; then
+    GAMEBINARY="UnrealServer-Linux-Shipping"
+elif [ -f "${BINARY_DIR}/UE4Server-Linux-Shipping" ]; then
+    GAMEBINARY="UE4Server-Linux-Shipping"
+elif [ -f "${BINARY_DIR}/FactoryServer-Linux-Shipping" ]; then
+    GAMEBINARY="FactoryServer-Linux-Shipping"
 else
-    if [ -f "/config/gamefiles/Engine/Binaries/Linux/UE4Server-Linux-Shipping" ]; then
-        GAMEBINARY=UE4Server-Linux-Shipping
-        printf "Using ${GAMEBINARY} binary\\n"
-    else
-        printf "Game binary is missing.\\n"
-        exit 1
-    fi
+    printf "Game binary is missing.\\n"
+    exit 1
 fi
+
+printf "Using %s binary\\n" "${GAMEBINARY}"
 
 cd /config/gamefiles || exit 1
 

@@ -1,0 +1,50 @@
+name: Update steamcmd base image
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get latest steamcmd release
+        id: latest
+        run: |
+          TAG=$(curl -s https://api.github.com/repos/Donimax/steamcmd/releases/latest | jq -r '.tag_name')
+          echo "tag=${TAG}" >> $GITHUB_OUTPUT
+
+      - name: Get current steamcmd version
+        id: current
+        run: |
+          TAG=$(grep -oP 'FROM donimax/steamcmd:\K\S+' Dockerfile)
+          echo "tag=${TAG}" >> $GITHUB_OUTPUT
+
+      - name: Update Dockerfile
+        if: steps.latest.outputs.tag != steps.current.outputs.tag
+        run: |
+          sed -i "s|FROM donimax/steamcmd:.*|FROM donimax/steamcmd:${{ steps.latest.outputs.tag }}|" Dockerfile
+
+      - name: Create Pull Request
+        if: steps.latest.outputs.tag != steps.current.outputs.tag
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: bump steamcmd base image to ${{ steps.latest.outputs.tag }}"
+          title: "chore: bump steamcmd base image to ${{ steps.latest.outputs.tag }}"
+          body: |
+            Automated update of the `donimax/steamcmd` base image.
+
+            | | Version |
+            |---|---|
+            | Current | `${{ steps.current.outputs.tag }}` |
+            | New | `${{ steps.latest.outputs.tag }}` |
+
+            See the [steamcmd release](https://github.com/Donimax/steamcmd/releases/tag/${{ steps.latest.outputs.tag }}) for details.
+          branch: chore/bump-steamcmd-${{ steps.latest.outputs.tag }}
+          delete-branch: true
